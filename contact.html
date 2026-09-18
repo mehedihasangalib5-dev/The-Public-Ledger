@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>যোগাযোগ — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<a href="#main" class="skip-link">মূল কনটেন্টে যান</a>
+<div id="load-bar"></div>
+<header id="site-header"></header>
+<div id="site-ticker" class="ticker"></div>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-header">
+      <span style="color:var(--ledger-red);font-weight:700;font-size:13px;">যোগাযোগ</span>
+      <h1>আমাদের সাথে যোগাযোগ করুন</h1>
+      <p>সংবাদ সূত্র, সংশোধনী অনুরোধ কিংবা সাধারণ জিজ্ঞাসা — যেকোনো বিষয়ে আমাদের জানান।</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="item">
+          <span class="icon">✉</span>
+          <div><h4>ইমেইল</h4><p>[সম্পাদকীয় ইমেইল এখানে বসবে]</p></div>
+        </div>
+        <div class="item">
+          <span class="icon">☎</span>
+          <div><h4>ফোন</h4><p>[যোগাযোগ নম্বর এখানে বসবে]</p></div>
+        </div>
+        <div class="item">
+          <span class="icon">⌂</span>
+          <div><h4>কার্যালয়</h4><p>[কার্যালয়ের ঠিকানা এখানে বসবে]</p></div>
+        </div>
+        <div class="item">
+          <span class="icon">◷</span>
+          <div><h4>সাড়া দেওয়ার সময়</h4><p>রবি–বৃহস্পতি, সকাল ১০টা – সন্ধ্যা ৬টা</p></div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div id="contact-note" class="form-note"></div>
+        <form id="contact-form">
+          <div class="field">
+            <label for="name">নাম</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="field">
+            <label for="email">ইমেইল</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="subject">বিষয়</label>
+            <input type="text" id="subject" name="subject">
+          </div>
+          <div class="field">
+            <label for="message">বার্তা</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <button type="submit" class="btn red">বার্তা পাঠান</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+<button id="back-to-top" aria-label="উপরে যান">↑</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/db.js"></script>
+<script src="js/common.js"></script>
+<script src="js/contact.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => window.TPL_setupReveal && window.TPL_setupReveal(), 0));
+</script>
+</body>
+</html>

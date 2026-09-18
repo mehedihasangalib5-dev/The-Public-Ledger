@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আমাদের সম্পর্কে — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<a href="#main" class="skip-link">মূল কনটেন্টে যান</a>
+<div id="load-bar"></div>
+<header id="site-header"></header>
+<div id="site-ticker" class="ticker"></div>
 
+<main id="main">
+  <div class="wrap">
+    <div class="page-header">
+      <span style="color:var(--ledger-red);font-weight:700;font-size:13px;">আমাদের সম্পর্কে</span>
+      <h1>প্রতিটি তথ্যের একটি হিসাব রাখি</h1>
+      <p>দ্য পাবলিক লেজার একটি স্বাধীন সংবাদমাধ্যম, যেখানে প্রতিটি প্রতিবেদন যাচাই করে প্রকাশ করা হয় — ঠিক যেভাবে একটি ভালো লেজারে প্রতিটি এন্ট্রি যাচাই হয়ে খতিয়ানে ওঠে।</p>
+    </div>
+
+    <div class="prose reveal">
+      <p>২০২৬ সালে যাত্রা শুরু করা দ্য পাবলিক লেজার রাজনীতি, অর্থনীতি, খেলাধুলা, বিনোদন, প্রযুক্তি ও মতামত — এই ছয়টি প্রধান বিভাগে সংবাদ পরিবেশন করে। আমাদের লক্ষ্য একটাই: পাঠকের কাছে সহজ, স্পষ্ট ও যাচাইকৃত তথ্য পৌঁছে দেওয়া।</p>
+      <p>নামটি ইচ্ছাকৃতভাবেই বেছে নেওয়া। একটি ভালো লেজারে কোনো এন্ট্রি বাদ পড়ে না, কোনো হিসাব লুকানো থাকে না। সাংবাদিকতাতেও আমরা একই নীতিতে বিশ্বাসী — স্বচ্ছতা ও জবাবদিহিতা।</p>
+    </div>
+
+    <div class="stat-cards reveal">
+      <div class="card"><div class="num">৬</div><div class="lbl">প্রধান বিভাগ</div></div>
+      <div class="card"><div class="num">১৪+</div><div class="lbl">সাপ্তাহিক প্রতিবেদন</div></div>
+      <div class="card"><div class="num">২০২৬</div><div class="lbl">প্রতিষ্ঠাকাল</div></div>
+      <div class="card"><div class="num">৭</div><div class="lbl">নিয়মিত প্রতিবেদক</div></div>
+    </div>
+
+    <div class="prose reveal">
+      <h2>আমাদের নীতিমালা</h2>
+    </div>
+    <div class="value-cards reveal">
+      <div class="card">
+        <div class="icon">✓</div>
+        <h3>সত্যতা যাচাই</h3>
+        <p>প্রকাশের আগে প্রতিটি তথ্য একাধিক সূত্র থেকে যাচাই করা হয়।</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚖</div>
+        <h3>নিরপেক্ষতা</h3>
+        <p>প্রতিবেদন ও মতামতকে সবসময় আলাদাভাবে চিহ্নিত করে উপস্থাপন করা হয়।</p>
+      </div>
+      <div class="card">
+        <div class="icon">↺</div>
+        <h3>সংশোধনের স্বচ্ছতা</h3>
+        <p>ভুল হলে তা স্পষ্টভাবে স্বীকার করে সংশোধিত তথ্য প্রকাশ করা হয়।</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔒</div>
+        <h3>সূত্রের সুরক্ষা</h3>
+        <p>প্রয়োজনে সংবাদসূত্রের পরিচয় গোপন রাখার প্রতিশ্রুতি আমরা রক্ষা করি।</p>
+      </div>
+    </div>
+
+    <div class="prose reveal">
+      <h2>সম্পাদকীয় দল</h2>
+    </div>
+    <div class="team-grid reveal">
+      <div class="person"><div class="avatar">রা</div><h4>রফিক আহমেদ</h4><div class="role">রাজনীতি প্রতিবেদক</div></div>
+      <div class="person"><div class="avatar">ফা</div><h4>ফারহানা হক</h4><div class="role">অর্থনীতি প্রতিবেদক</div></div>
+      <div class="person"><div class="avatar">তা</div><h4>তানভীর হাসান</h4><div class="role">ক্রীড়া প্রতিবেদক</div></div>
+      <div class="person"><div class="avatar">ইম</div><h4>ইমরান কবির</h4><div class="role">প্রযুক্তি প্রতিবেদক</div></div>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+<button id="back-to-top" aria-label="উপরে যান">↑</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/db.js"></script>
+<script src="js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => window.TPL_setupReveal && window.TPL_setupReveal(), 0));
+</script>
+</body>
+</html>

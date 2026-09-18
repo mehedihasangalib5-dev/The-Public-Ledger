@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>বিজ্ঞাপন দিন — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<a href="#main" class="skip-link">মূল কনটেন্টে যান</a>
+<div id="load-bar"></div>
+<header id="site-header"></header>
+<div id="site-ticker" class="ticker"></div>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-header">
+      <span style="color:var(--ledger-red);font-weight:700;font-size:13px;">বিজ্ঞাপন দিন</span>
+      <h1>দ্য পাবলিক লেজারে বিজ্ঞাপন দিন</h1>
+      <p>প্রতিদিন হাজারো পাঠকের কাছে আপনার ব্র্যান্ড পৌঁছে দিন — নির্ভরযোগ্য সংবাদের পাশে।</p>
+    </div>
+
+    <div class="stat-cards reveal">
+      <div class="card"><div class="num">৬</div><div class="lbl">বিভাগজুড়ে উপস্থিতি</div></div>
+      <div class="card"><div class="num">প্রচ্ছদ</div><div class="lbl">প্রিমিয়াম ব্যানার স্লট</div></div>
+      <div class="card"><div class="num">সাইডবার</div><div class="lbl">প্রতি পাতায় দৃশ্যমান</div></div>
+      <div class="card"><div class="num">নিউজলেটার</div><div class="lbl">স্পন্সরড এন্ট্রি</div></div>
+    </div>
+
+    <div class="value-cards reveal">
+      <div class="card"><h3>হোমপেজ ব্যানার</h3><p>প্রচ্ছদে সবচেয়ে বেশি দৃশ্যমান অবস্থানে আপনার বিজ্ঞাপন প্রদর্শিত হবে।</p></div>
+      <div class="card"><h3>বিভাগ স্পনসরশিপ</h3><p>নির্দিষ্ট একটি বিভাগ (যেমন প্রযুক্তি বা খেলাধুলা) স্পনসর করার সুযোগ।</p></div>
+      <div class="card"><h3>নেটিভ কনটেন্ট</h3><p>সম্পাদকীয় দলের সহায়তায় ব্র্যান্ডেড কনটেন্ট তৈরি ও প্রকাশ।</p></div>
+    </div>
+
+    <div class="prose">
+      <p>বিজ্ঞাপন প্যাকেজ ও মূল্য তালিকা জানতে আমাদের বিজ্ঞাপন দলের সাথে <a href="contact.html">যোগাযোগ করুন</a>।</p>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+<button id="back-to-top" aria-label="উপরে যান">↑</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/db.js"></script>
+<script src="js/common.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => setTimeout(() => window.TPL_setupReveal && window.TPL_setupReveal(), 0));</script>
+</body>
+</html>
