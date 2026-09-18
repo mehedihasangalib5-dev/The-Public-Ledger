@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>প্রতিবেদন — অ্যাডমিন — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="css/admin.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <div class="admin-main">
+    <div class="mobile-topbar" id="mobile-topbar"></div>
+    <div class="admin-topbar">
+      <div>
+        <h1>প্রতিবেদন ব্যবস্থাপনা</h1>
+        <p>প্রতিবেদন তৈরি, সম্পাদনা ও প্রকাশনা নিয়ন্ত্রণ করুন</p>
+      </div>
+      <button class="btn red" id="new-article-btn">+ নতুন প্রতিবেদন</button>
+    </div>
+    <div class="admin-content">
+      <div class="panel">
+        <div class="toolbar">
+          <input type="search" id="search-input" placeholder="শিরোনাম দিয়ে খুঁজুন…">
+          <select id="filter-cat"><option value="">সব বিভাগ</option></select>
+          <select id="filter-status">
+            <option value="">সব অবস্থা</option>
+            <option value="published">প্রকাশিত</option>
+            <option value="draft">খসড়া</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>শিরোনাম</th><th>বিভাগ</th><th>লেখক</th><th>তারিখ</th><th>অবস্থা</th><th>ট্যাগ</th><th>কার্যক্রম</th></tr>
+            </thead>
+            <tbody id="articles-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="article-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">নতুন প্রতিবেদন</h3>
+      <button class="modal-close" id="modal-close">×</button>
+    </div>
+    <form id="article-form">
+      <div class="modal-body">
+        <input type="hidden" id="art-id">
+        <div class="field">
+          <label for="art-title-bn">শিরোনাম (বাংলা)</label>
+          <input type="text" id="art-title-bn" required>
+        </div>
+        <div class="field">
+          <label for="art-title-en">শিরোনাম (ইংরেজি) — ঐচ্ছিক</label>
+          <input type="text" id="art-title-en">
+        </div>
+        <div class="field">
+          <label for="art-excerpt">সংক্ষিপ্ত বিবরণ</label>
+          <textarea id="art-excerpt" style="min-height:70px;" required></textarea>
+        </div>
+        <div class="field">
+          <label for="art-body">বিস্তারিত (প্রতি লাইনে একটি অনুচ্ছেদ)</label>
+          <textarea id="art-body" style="min-height:140px;" required></textarea>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="art-category">বিভাগ</label>
+            <select id="art-category" required></select>
+          </div>
+          <div class="field">
+            <label for="art-author">লেখক</label>
+            <input type="text" id="art-author" required>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="art-date">তারিখ</label>
+            <input type="date" id="art-date" required>
+          </div>
+          <div class="field">
+            <label for="art-status">অবস্থা</label>
+            <select id="art-status">
+              <option value="draft">খসড়া</option>
+              <option value="published">প্রকাশিত</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="art-tags">ট্যাগ (কমা দিয়ে আলাদা করুন)</label>
+          <input type="text" id="art-tags" placeholder="যেমন: বাজেট, সংসদ">
+        </div>
+        <div class="field">
+          <label for="art-image-file">কভার ছবি আপলোড করুন</label>
+          <input type="file" id="art-image-file" accept="image/*">
+          <div id="art-image-preview" style="margin-top:8px;"></div>
+        </div>
+        <div class="field checks">
+          <label><input type="checkbox" id="art-featured"> ফিচার্ড (প্রচ্ছদে বড় করে দেখান)</label>
+          <label><input type="checkbox" id="art-breaking"> ব্রেকিং নিউজ (টিকারে দেখান)</label>
+          <label><input type="checkbox" id="art-trending"> ট্রেন্ডিং (সাইডবারে দেখান)</label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" id="modal-cancel">বাতিল</button>
+        <button type="submit" class="btn red">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-init.js"></script>
+<script src="../js/db.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="js/admin-articles.js"></script>
+</body>
+</html>

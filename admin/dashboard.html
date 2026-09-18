@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ড্যাশবোর্ড — অ্যাডমিন — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="css/admin.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <div class="admin-main">
+    <div class="mobile-topbar" id="mobile-topbar"></div>
+    <div class="admin-topbar">
+      <div>
+        <h1>ড্যাশবোর্ড</h1>
+        <p>সাইটের সার্বিক অবস্থার একনজর দেখুন</p>
+      </div>
+      <a href="articles.html" class="btn red">+ নতুন প্রতিবেদন</a>
+    </div>
+    <div class="admin-content">
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>সাম্প্রতিক প্রতিবেদন</h3>
+          <a href="articles.html" class="btn ghost small">সব দেখুন</a>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>শিরোনাম</th><th>বিভাগ</th><th>অবস্থা</th><th>তারিখ</th><th>ভিউ</th></tr></thead>
+              <tbody id="recent-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-init.js"></script>
+<script src="../js/db.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="js/admin-dashboard.js"></script>
+</body>
+</html>

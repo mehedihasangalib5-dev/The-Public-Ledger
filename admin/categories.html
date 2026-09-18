@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>বিভাগ — অ্যাডমিন — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="css/admin.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <div class="admin-main">
+    <div class="mobile-topbar" id="mobile-topbar"></div>
+    <div class="admin-topbar">
+      <div>
+        <h1>বিভাগ ব্যবস্থাপনা</h1>
+        <p>সাইটের সংবাদ বিভাগ তৈরি ও সম্পাদনা করুন</p>
+      </div>
+      <button class="btn red" id="new-cat-btn">+ নতুন বিভাগ</button>
+    </div>
+    <div class="admin-content">
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>নাম (বাংলা)</th><th>নাম (ইংরেজি)</th><th>স্লাগ</th><th>প্রতিবেদন সংখ্যা</th><th>কার্যক্রম</th></tr></thead>
+            <tbody id="categories-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <h3 id="cat-modal-title">নতুন বিভাগ</h3>
+      <button class="modal-close" id="cat-modal-close">×</button>
+    </div>
+    <form id="cat-form">
+      <div class="modal-body">
+        <input type="hidden" id="cat-original-slug">
+        <div class="field">
+          <label for="cat-name-bn">নাম (বাংলা)</label>
+          <input type="text" id="cat-name-bn" required>
+        </div>
+        <div class="field">
+          <label for="cat-name-en">নাম (ইংরেজি)</label>
+          <input type="text" id="cat-name-en" required>
+        </div>
+        <div class="field">
+          <label for="cat-slug">স্লাগ (URL-এ ব্যবহৃত হবে)</label>
+          <input type="text" id="cat-slug" required pattern="[a-z0-9\-]+" placeholder="যেমন: politics">
+        </div>
+        <div class="field">
+          <label for="cat-desc">সংক্ষিপ্ত বিবরণ</label>
+          <textarea id="cat-desc" style="min-height:70px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" id="cat-modal-cancel">বাতিল</button>
+        <button type="submit" class="btn red">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-init.js"></script>
+<script src="../js/db.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="js/admin-categories.js"></script>
+</body>
+</html>
