@@ -1,4 +1,5 @@
 (function () {
+  const I = window.TPL_I18N;
   let cats = [];
 
   function catBySlug(slug) {
@@ -9,10 +10,10 @@
     const cat = catBySlug(a.category);
     return `
       <article class="story reveal">
-        <a class="figure" href="article.html?slug=${a.slug}"><img src="${a.image}" alt="${a.title_bn}" loading="lazy"></a>
+        <a class="figure" href="article.html?slug=${a.slug}"><img src="${a.image}" alt="${I.title(a)}" loading="lazy"></a>
         <div class="body">
-          <a class="cat-tag" href="category.html?cat=${a.category}">${cat ? cat.name_bn : ''}</a>
-          <h3><a href="article.html?slug=${a.slug}">${a.title_bn}</a></h3>
+          <a class="cat-tag" href="category.html?cat=${a.category}">${cat ? I.catName(cat) : ''}</a>
+          <h3><a href="article.html?slug=${a.slug}">${I.title(a)}</a></h3>
         </div>
       </article>
     `;
@@ -22,34 +23,36 @@
     const root = document.getElementById('article-root');
 
     if (!article || article.status !== 'published') {
-      root.innerHTML = `<div class="empty-state"><h2>প্রতিবেদনটি খুঁজে পাওয়া যায়নি</h2><p>লিংকটি ভুল হতে পারে অথবা প্রতিবেদনটি সরিয়ে নেওয়া হয়েছে।</p><a class="btn" href="index.html" style="margin-top:14px;display:inline-block;">প্রচ্ছদে ফিরে যান</a></div>`;
-      document.title = 'প্রতিবেদন পাওয়া যায়নি — দ্য পাবলিক লেজার';
+      root.innerHTML = `<div class="empty-state"><h2>${I.t('প্রতিবেদনটি খুঁজে পাওয়া যায়নি')}</h2><p>${I.t('লিংকটি ভুল হতে পারে অথবা প্রতিবেদনটি সরিয়ে নেওয়া হয়েছে।')}</p><a class="btn" href="index.html" style="margin-top:14px;display:inline-block;">${I.t('প্রচ্ছদে ফিরে যান')}</a></div>`;
+      document.title = I.t('প্রতিবেদন পাওয়া যায়নি — দ্য পাবলিক লেজার');
       return;
     }
 
-    document.title = `${article.title_bn} — দ্য পাবলিক লেজার`;
+    document.title = `${I.title(article)} — ${I.t('দ্য পাবলিক লেজার')}`;
     const cat = catBySlug(article.category);
     const shareUrl = encodeURIComponent(location.href);
+    const noEnglish = I.isEn && !I.hasEnglishBody(article);
 
     root.innerHTML = `
       <header class="article-head">
-        <a class="cat-tag" href="category.html?cat=${article.category}">${cat ? cat.name_bn : ''}</a>
-        <h1>${article.title_bn}</h1>
-        <p class="dek">${article.excerpt_bn}</p>
+        <a class="cat-tag" href="category.html?cat=${article.category}">${cat ? I.catName(cat) : ''}</a>
+        <h1>${I.title(article)}</h1>
+        <p class="dek">${I.excerpt(article)}</p>
         <div class="article-meta">
-          <span>লিখেছেন <strong>${article.author}</strong> · ${window.TPL_fmtDateBn(article.date)} · ${article.views.toLocaleString('bn-BD')} বার পঠিত</span>
+          <span>${I.t('লিখেছেন')} <strong>${article.author}</strong> · ${I.fmtDate(article.date)} · ${I.num(article.views)} ${I.t('বার পঠিত')}</span>
           <span class="share-links">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener">শেয়ার</a>
-            <a href="#" id="copy-link">লিংক কপি</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener">${I.t('শেয়ার')}</a>
+            <a href="#" id="copy-link">${I.t('লিংক কপি')}</a>
           </span>
         </div>
       </header>
       <figure class="article-figure">
-        <img src="${article.image}" alt="${article.title_bn}">
-        <figcaption>প্রতীকী ছবি — দ্য পাবলিক লেজার</figcaption>
+        <img src="${article.image}" alt="${I.title(article)}">
+        <figcaption>${I.t('প্রতীকী ছবি — দ্য পাবলিক লেজার')}</figcaption>
       </figure>
       <div class="article-body">
-        ${article.body.map(p => `<p>${p}</p>`).join('')}
+        ${noEnglish ? '<p style="font-size:13.5px;font-style:italic;color:var(--ink-faded);">This report is not available in English yet — showing the original Bangla.</p>' : ''}
+        ${I.body(article).map(p => `<p>${p}</p>`).join('')}
       </div>
       <div class="tags">
         ${(article.tags || []).map(t => `<a href="category.html?q=${encodeURIComponent(t)}">#${t}</a>`).join('')}
@@ -59,16 +62,13 @@
     root.querySelector('#copy-link').addEventListener('click', (e) => {
       e.preventDefault();
       navigator.clipboard?.writeText(location.href).then(() => {
-        e.target.textContent = 'কপি হয়েছে ✓';
-        setTimeout(() => { e.target.textContent = 'লিংক কপি'; }, 1600);
+        e.target.textContent = I.t('কপি হয়েছে ✓');
+        setTimeout(() => { e.target.textContent = I.t('লিংক কপি'); }, 1600);
       });
     });
 
-    // bump the view count (fire-and-forget)
-    window.TPL_DB.getArticles().then((all) => {
-      const idx = all.findIndex(a => a.slug === article.slug);
-      if (idx > -1) { all[idx].views = (all[idx].views || 0) + 1; window.TPL_DB.saveArticles(all); }
-    });
+    // bump the view count (fire-and-forget; ignored if the rules don't allow it)
+    if (article.id) window.TPL_DB.incrementViews(article.id).catch(() => {});
 
     const relatedHost = document.getElementById('related-list');
     if (relatedHost) {
@@ -78,7 +78,7 @@
           .slice(0, 3);
         if (related.length) {
           relatedHost.innerHTML = `
-            <div class="section-head"><h2>সম্পর্কিত প্রতিবেদন</h2></div>
+            <div class="section-head"><h2>${I.t('সম্পর্কিত প্রতিবেদন')}</h2></div>
             <div class="secondary-grid">${related.map(relatedCard).join('')}</div>
           `;
           setTimeout(() => window.TPL_setupReveal && window.TPL_setupReveal(), 0);
@@ -93,7 +93,7 @@
     const tryRender = () => {
       if (!window.TPL_DB) { setTimeout(tryRender, 30); return; }
       const slug = new URLSearchParams(location.search).get('slug');
-      window.TPL_DB.seedIfNeeded()
+      window.TPL_DB.seedIfNeeded().catch(() => {})
         .then(() => Promise.all([window.TPL_DB.getCategories(), slug ? window.TPL_DB.getArticleBySlug(slug) : null]))
         .then(([c, article]) => {
           cats = c;

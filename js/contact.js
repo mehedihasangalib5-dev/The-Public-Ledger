@@ -1,4 +1,5 @@
 (function () {
+  const I = window.TPL_I18N;
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('contact-form');
     if (!form) return;
@@ -11,7 +12,7 @@
       const message = form.message.value.trim();
 
       if (!name || !email || !message) {
-        note.textContent = 'অনুগ্রহ করে নাম, ইমেইল ও বার্তা পূরণ করুন।';
+        note.textContent = I.t('অনুগ্রহ করে নাম, ইমেইল ও বার্তা পূরণ করুন।');
         note.className = 'form-note show err';
         return;
       }
@@ -24,7 +25,7 @@
         localStorage.setItem('tpl_contact_queue', JSON.stringify(queued));
       } catch (err) { /* storage unavailable — still show success to the user */ }
 
-      note.textContent = 'ধন্যবাদ! আপনার বার্তা পাওয়া গেছে, দ্রুত সাড়া দেওয়া হবে।';
+      note.textContent = I.t('ধন্যবাদ! আপনার বার্তা পাওয়া গেছে, দ্রুত সাড়া দেওয়া হবে।');
       note.className = 'form-note show ok';
       form.reset();
     });

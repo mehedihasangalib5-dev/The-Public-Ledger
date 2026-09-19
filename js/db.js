@@ -13,12 +13,12 @@
   // Default categories only — no demo/seed articles. The articles
   // collection starts empty; real posts are added from /admin.
   const DEFAULT_CATEGORIES = [
-    { slug: 'politics',       name_bn: 'রাজনীতি',   name_en: 'Politics',       desc_bn: 'সংসদ, নীতিনির্ধারণ ও প্রশাসনের খবর' },
-    { slug: 'sports',         name_bn: 'খেলাধুলা',  name_en: 'Sports',         desc_bn: 'মাঠের ভেতরে-বাইরের সবশেষ খবর' },
-    { slug: 'entertainment',  name_bn: 'বিনোদন',    name_en: 'Entertainment',  desc_bn: 'চলচ্চিত্র, সংগীত ও সংস্কৃতির খবর' },
-    { slug: 'tech',           name_bn: 'প্রযুক্তি',  name_en: 'Technology',     desc_bn: 'প্রযুক্তি ও উদ্ভাবনের হালচাল' },
-    { slug: 'business',       name_bn: 'অর্থনীতি',  name_en: 'Business',       desc_bn: 'বাজার, বাণিজ্য ও অর্থনীতির বিশ্লেষণ' },
-    { slug: 'opinion',        name_bn: 'মতামত',     name_en: 'Opinion',        desc_bn: 'সম্পাদকীয় ও কলাম' },
+    { slug: 'politics',       name_bn: 'রাজনীতি',   name_en: 'Politics',       desc_bn: 'সংসদ, নীতিনির্ধারণ ও প্রশাসনের খবর', desc_en: 'News from parliament, policymaking and administration' },
+    { slug: 'sports',         name_bn: 'খেলাধুলা',  name_en: 'Sports',         desc_bn: 'মাঠের ভেতরে-বাইরের সবশেষ খবর', desc_en: 'The latest from on and off the field' },
+    { slug: 'entertainment',  name_bn: 'বিনোদন',    name_en: 'Entertainment',  desc_bn: 'চলচ্চিত্র, সংগীত ও সংস্কৃতির খবর', desc_en: 'News on film, music and culture' },
+    { slug: 'tech',           name_bn: 'প্রযুক্তি',  name_en: 'Technology',     desc_bn: 'প্রযুক্তি ও উদ্ভাবনের হালচাল', desc_en: 'The latest in technology and innovation' },
+    { slug: 'business',       name_bn: 'অর্থনীতি',  name_en: 'Business',       desc_bn: 'বাজার, বাণিজ্য ও অর্থনীতির বিশ্লেষণ', desc_en: 'Analysis of markets, trade and the economy' },
+    { slug: 'opinion',        name_bn: 'মতামত',     name_en: 'Opinion',        desc_bn: 'সম্পাদকীয় ও কলাম', desc_en: 'Editorials and columns' },
   ];
 
   function db() {
@@ -89,8 +89,35 @@
     });
   }
 
+  // ---- single-document operations (use these instead of saveArticles) ----
+  // Writing/deleting ONE article at a time keeps each request small and
+  // means a visitor's stale copy can never overwrite or delete other posts.
+  function stripUndefined(obj) { return JSON.parse(JSON.stringify(obj)); } // Firestore rejects `undefined`
+
+  // Creates the article, or merges the given fields into it if it exists.
+  function saveArticle(a) {
+    const id = a.id || nowSlugId('a');
+    const data = stripUndefined({ ...a, id });
+    return db().collection(ARTS_COL).doc(id).set(data, { merge: true }).then(() => data);
+  }
+
+  function deleteArticle(id) {
+    return db().collection(ARTS_COL).doc(id).delete();
+  }
+
+  // Atomic +1 on one field; no read/rewrite of the whole collection.
+  function incrementViews(id) {
+    return db().collection(ARTS_COL).doc(id).update({
+      views: global.firebase.firestore.FieldValue.increment(1)
+    });
+  }
+
+  // Public pages must ask for published articles only: Firestore rules let
+  // visitors read a document only when status == 'published', and a query
+  // has to be provably inside that rule.
   function getPublished() {
-    return getArticles().then((arts) => arts.filter((a) => a.status === 'published'));
+    return db().collection(ARTS_COL).where('status', '==', 'published').get()
+      .then((snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   }
 
   function getCategoryBySlug(slug) {
@@ -98,12 +125,13 @@
   }
 
   function getArticleBySlug(slug) {
-    return db().collection(ARTS_COL).where('slug', '==', slug).limit(1).get()
+    return db().collection(ARTS_COL).where('slug', '==', slug).where('status', '==', 'published').limit(1).get()
       .then((snap) => (snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() }));
   }
 
   global.TPL_DB = {
     seedIfNeeded, getCategories, saveCategories, getArticles, saveArticles,
+    saveArticle, deleteArticle, incrementViews,
     getPublished, getCategoryBySlug, getArticleBySlug, nowSlugId
   };
 })(window);

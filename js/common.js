@@ -8,23 +8,22 @@
   // panel manages (Firestore `categories` collection) so a category
   // added/renamed/removed in /admin shows up here automatically —
   // nothing category-related is hardcoded anymore.
+  const I = window.TPL_I18N; // language helpers (js/i18n.js)
+
   function buildNavItems(cats) {
-    const catItems = (cats || []).map(c => ({ href: `category.html?cat=${c.slug}`, label: c.name_bn }));
+    const catItems = (cats || []).map(c => ({ href: `category.html?cat=${c.slug}`, label: I.catName(c) }));
     return [
-      { href: 'index.html', label: 'প্রচ্ছদ' },
+      { href: 'index.html', label: I.t('প্রচ্ছদ') },
       ...catItems,
-      { href: 'about.html', label: 'আমাদের সম্পর্কে' },
-      { href: 'contact.html', label: 'যোগাযোগ' },
+      { href: 'about.html', label: I.t('আমাদের সম্পর্কে') },
+      { href: 'contact.html', label: I.t('যোগাযোগ') },
     ];
   }
 
-  function fmtDateBn(iso) {
-    const d = new Date(iso + 'T00:00:00');
-    const days = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহস্পতি', 'শুক্র', 'শনি'];
-    const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
-    return `${days[d.getDay()]}বার, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  }
-  window.TPL_fmtDateBn = fmtDateBn;
+  // Follows the selected language (Bangla / English).
+  const fmtDate = I.fmtDate;
+  window.TPL_fmtDate = fmtDate;
+  window.TPL_fmtDateBn = fmtDate; // legacy name, kept so old callers don't break
 
   function currentFile() {
     const p = location.pathname.split('/').pop();
@@ -62,6 +61,7 @@
       </aside>
     `;
     document.body.appendChild(root);
+    I.apply(root);
 
     const overlay = root.querySelector('#sidebar-overlay');
     const closeBtn = root.querySelector('#sidebar-close');
@@ -124,12 +124,15 @@
   function renderHeader() {
     const host = document.getElementById('site-header');
     if (!host) return;
-    const dateStr = fmtDateBn('2026-09-18');
+    const dateStr = fmtDate('2026-09-18');
     host.innerHTML = `
       <div class="dateline">
         <div class="wrap">
-          <span>${dateStr} · ঢাকা সংস্করণ</span>
-          <span class="lang-toggle"><a href="#" class="active">বাংলা</a><a href="#" id="en-note">English</a></span>
+          <span>${dateStr} · ${I.t('ঢাকা সংস্করণ')}</span>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" data-lang="bn" lang="bn" class="${I.lang === 'bn' ? 'active' : ''}" aria-pressed="${I.lang === 'bn'}">বাংলা</button>
+            <button type="button" data-lang="en" lang="en" class="${I.lang === 'en' ? 'active' : ''}" aria-pressed="${I.lang === 'en'}">English</button>
+          </div>
         </div>
       </div>
       <div class="masthead">
@@ -150,6 +153,7 @@
           </form>
         </div>
       </div>
+      <div class="ticker" id="site-ticker"></div>
     `;
 
     const toggle = host.querySelector('#nav-toggle');
@@ -160,10 +164,11 @@
       const q = host.querySelector('#site-search-input').value.trim();
       if (q) location.href = `category.html?q=${encodeURIComponent(q)}`;
     });
-    host.querySelector('#en-note').addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('ইংরেজি সংস্করণ শীঘ্রই আসছে। এই মুহূর্তে সাইটটি বাংলায় পড়া যাচ্ছে।');
+    host.querySelectorAll('.lang-switch button').forEach((b) => {
+      b.addEventListener('click', () => I.setLang(b.dataset.lang));
     });
+
+    I.apply(host);
   }
 
   // Fetches the live category list from Firestore (same collection
@@ -189,23 +194,36 @@
     });
   }
 
+  // Breaking-news bar inside the header. Shows articles flagged "breaking";
+  // if none are flagged it shows the latest published articles instead, so
+  // the bar is never empty. Hidden only when nothing is published yet.
   function renderTicker() {
     const host = document.getElementById('site-ticker');
     if (!host) return;
     if (!window.TPL_DB) { host.remove(); return; }
     window.TPL_DB.getPublished().then((pub) => {
-      const arts = pub.filter(a => a.breaking);
+      const newest = pub.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      const breaking = newest.filter(a => a.breaking);
+      const isBreaking = breaking.length > 0;
+      const arts = (isBreaking ? breaking : newest).slice(0, 10);
       if (!arts.length) { host.remove(); return; }
+
+      const links = arts.map(a => `<span><a href="article.html?slug=${a.slug}" style="color:inherit">${I.title(a)}</a></span>`).join('');
+      // Repeat short lists so the loop never shows a gap, then double for the seamless -50% scroll.
+      const reps = Math.max(1, Math.ceil(8 / arts.length));
+      const group = new Array(reps).fill(links).join('');
+      const chars = arts.reduce((n, a) => n + String(I.title(a)).length, 0) * reps;
+      const secs = Math.max(24, Math.round(chars * 0.28));
+
       host.innerHTML = `
         <div class="wrap">
-          <span class="tag">জরুরি খবর</span>
+          <span class="tag"><i class="dot"></i>${I.t(isBreaking ? 'জরুরি খবর' : 'সর্বশেষ')}</span>
           <div class="ticker-track-outer">
-            <div class="ticker-track">
-              ${arts.concat(arts).map(a => `<span><a href="article.html?slug=${a.slug}" style="color:inherit">${a.title_bn}</a></span>`).join('')}
-            </div>
+            <div class="ticker-track" style="animation-duration:${secs}s">${group}${group}</div>
           </div>
         </div>
       `;
+      I.apply(host);
     }).catch(() => host.remove());
   }
 
@@ -256,13 +274,14 @@
         <span>Built for Cortex IT · The Public Ledger</span>
       </div>
     `;
+    I.apply(host);
   }
 
   function renderFooterCategories(cats) {
     const list = document.getElementById('footer-cat-list');
     if (!list) return;
     list.innerHTML = (cats || [])
-      .map(c => `<li><a href="category.html?cat=${c.slug}">${c.name_bn}</a></li>`)
+      .map(c => `<li><a href="category.html?cat=${c.slug}">${I.catName(c)}</a></li>`)
       .join('');
   }
 
