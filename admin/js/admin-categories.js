@@ -37,6 +37,13 @@
     return window.TPL_DB.saveCategories(cats).then(() => {
       if (successMsg) window.TPL_SHELL.toast(successMsg);
       render();
+    }).catch((err) => {
+      console.error(err);
+      window.TPL_SHELL.toast(err && err.code === 'permission-denied'
+        ? 'সংরক্ষণের অনুমতি নেই — Firestore Rules দেখুন'
+        : 'সংরক্ষণ করা যায়নি: ' + ((err && err.message) || err));
+      // reload the real list so the screen matches what is actually saved
+      window.TPL_DB.getCategories().then((c) => { cats = c; render(); });
     });
   }
 
@@ -60,6 +67,7 @@
       document.getElementById('cat-slug').value = c.slug;
       document.getElementById('cat-slug').readOnly = true;
       document.getElementById('cat-desc').value = c.desc_bn || '';
+      document.getElementById('cat-desc-en').value = c.desc_en || '';
     } else {
       document.getElementById('cat-original-slug').value = '';
     }
@@ -85,6 +93,7 @@
       name_bn: document.getElementById('cat-name-bn').value.trim(),
       name_en: document.getElementById('cat-name-en').value.trim(),
       desc_bn: document.getElementById('cat-desc').value.trim(),
+      desc_en: document.getElementById('cat-desc-en').value.trim(),
     };
 
     if (original) {
@@ -99,7 +108,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     window.TPL_AUTH.requireAuth((user) => {
-      window.TPL_DB.seedIfNeeded().then(() => {
+      window.TPL_DB.seedIfNeeded().catch(() => {}).then(() => {
         window.TPL_SHELL.renderShell(user, 'categories.html');
         return Promise.all([window.TPL_DB.getCategories(), window.TPL_DB.getArticles()]);
       }).then(([c, a]) => {
@@ -113,6 +122,6 @@
         document.getElementById('cat-modal').addEventListener('click', (e) => { if (e.target.id === 'cat-modal') closeModal(); });
         document.getElementById('cat-form').addEventListener('submit', saveCat);
       });
-    });
+    }, { adminOnly: true });
   });
 })();

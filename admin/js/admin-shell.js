@@ -16,7 +16,7 @@
           <h2>অ্যাডমিন প্যানেল</h2>
         </div>
         <nav class="admin-nav">
-          ${NAV.map(n => `<a href="${n.href}" class="${n.href === activeHref ? 'active' : ''}"><span>${n.icon}</span> ${n.label}</a>`).join('')}
+          ${NAV.filter(n => n.href !== 'categories.html' || user.role === 'admin').map(n => `<a href="${n.href}" class="${n.href === activeHref ? 'active' : ''}"><span>${n.icon}</span> ${n.label}</a>`).join('')}
         </nav>
         <div class="admin-user">
           <div class="who">${user.name}</div>

@@ -1,7 +1,7 @@
 (function () {
   document.addEventListener('DOMContentLoaded', () => {
     window.TPL_AUTH.requireAuth((user) => {
-      window.TPL_DB.seedIfNeeded().then(() => {
+      window.TPL_DB.seedIfNeeded().catch(() => {}).then(() => {
         window.TPL_SHELL.renderShell(user, 'dashboard.html');
         return Promise.all([window.TPL_DB.getArticles(), window.TPL_DB.getCategories()]);
       }).then(([arts, cats]) => {
