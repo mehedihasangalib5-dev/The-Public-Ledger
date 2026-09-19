@@ -14,7 +14,6 @@
 <div id="read-bar"></div>
 
 <header id="site-header"></header>
-<div id="site-ticker" class="ticker"></div>
 
 <main id="main">
   <div class="wrap home-grid">
@@ -57,6 +56,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-init.js"></script>
 <script src="js/db.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/common.js"></script>
 <script src="js/home.js"></script>
 <script>
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nf = document.getElementById('newsletter-form');
   nf.addEventListener('submit', (e) => {
     e.preventDefault();
-    nf.innerHTML = '<p style="color:#fff;font-size:13.5px;margin:0;">ধন্যবাদ, আপনি তালিকাভুক্ত হয়েছেন ✓</p>';
+    nf.innerHTML = '<p style="color:#fff;font-size:13.5px;margin:0;">' + TPL_I18N.t('ধন্যবাদ, আপনি তালিকাভুক্ত হয়েছেন ✓') + '</p>';
   });
 });
 </script>
