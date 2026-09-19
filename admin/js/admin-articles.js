@@ -158,7 +158,7 @@
       document.getElementById('art-breaking').checked = !!a.breaking;
       document.getElementById('art-trending').checked = !!a.trending;
       if (a.image) {
-        document.getElementById('art-image-preview').innerHTML = `<img src="${a.image}" style="max-width:160px;border:1px solid var(--rule-strong);">`;
+        document.getElementById('art-image-preview').innerHTML = `<img src="${a.image}" style="max-width:160px;max-height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--rule-strong);">`;
       }
     } else {
       document.getElementById('article-form').reset();
@@ -276,7 +276,7 @@
           document.getElementById('art-image-preview').textContent = 'ছবি প্রসেস হচ্ছে…';
           compressImage(file, 1400, 0.82).then((dataUrl) => {
             pendingImage = dataUrl;
-            document.getElementById('art-image-preview').innerHTML = `<img src="${dataUrl}" style="max-width:160px;border:1px solid var(--rule-strong);">`;
+            document.getElementById('art-image-preview').innerHTML = `<img src="${dataUrl}" style="max-width:160px;max-height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--rule-strong);">`;
           }).catch((err) => {
             pendingImage = null;
             document.getElementById('art-image-preview').innerHTML = '';
