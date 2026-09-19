@@ -32,9 +32,9 @@
     if (leadHost) {
       const cat = catBySlug(lead.category);
       leadHost.innerHTML = `
+        <a class="figure" href="article.html?slug=${lead.slug}"><img src="${lead.image}" alt="${I.title(lead)}"></a>
         <a class="cat-tag" href="category.html?cat=${lead.category}">${cat ? I.catName(cat) : ''}</a>
         <h2><a href="article.html?slug=${lead.slug}">${I.title(lead)}</a></h2>
-        <a class="figure" href="article.html?slug=${lead.slug}"><img src="${lead.image}" alt="${I.title(lead)}"></a>
         <p class="dek">${I.excerpt(lead)}</p>
         <p class="byline">${lead.author} · ${I.fmtDate(lead.date)}</p>
       `;
@@ -81,7 +81,56 @@
     setTimeout(() => window.TPL_setupReveal && window.TPL_setupReveal(), 0);
   }
 
+  /* ---------- Market indicators: USD/BDT (live) ----------
+     DSEX and gold were removed — no free/reliable data source for either
+     (see conversation), so the box now only shows the real forex rate. */
+  function fmtMarketNumber(n, decimals) {
+    return n.toLocaleString('bn-BD', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  function paintMarketRow(el, value, pct, decimals, unit) {
+    const up = pct >= 0;
+    el.classList.toggle('up', up);
+    el.classList.toggle('down', !up);
+    el.textContent = `${up ? '▲' : '▼'} ${fmtMarketNumber(value, decimals)}${unit} (${pct >= 0 ? '+' : '−'}${fmtMarketNumber(Math.abs(pct), 2)}%)`;
+  }
+
+  // Real USD/BDT rate — free, no API key, updated daily, CORS-friendly.
+  // Tries three independent hosts of the same data in order.
+  const FOREX_URLS = [
+    'https://raw.githubusercontent.com/irfanokr/currency-api/main/v1/currencies/usd.json',
+    'https://cdn.jsdelivr.net/gh/irfanokr/currency-api@main/v1/currencies/usd.json',
+    'https://latest.currency-api.pages.dev/v1/currencies/usd.json',
+  ];
+  let forexBase = null; // first successful rate this session — % change is measured against it
+
+  async function fetchForex() {
+    const el = document.getElementById('market-usdbdt');
+    if (!el) return;
+    for (const url of FOREX_URLS) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const rate = data && data.usd && data.usd.bdt;
+        if (!rate) continue;
+        if (forexBase === null) forexBase = rate;
+        paintMarketRow(el, rate, ((rate - forexBase) / forexBase) * 100, 2, '');
+        return; // success — stop trying fallbacks
+      } catch (e) { /* try next URL */ }
+    }
+    // All sources failed — leave the last known value on screen rather than
+    // showing an error inside the market box.
+  }
+
+  function startMarketTicker() {
+    if (!document.getElementById('market-usdbdt')) return; // only on the homepage
+    fetchForex();
+    setInterval(fetchForex, 5 * 60 * 1000); // re-check every 5 min (source itself updates daily)
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    startMarketTicker();
     const tryRender = () => {
       if (!window.TPL_DB) { setTimeout(tryRender, 30); return; }
       window.TPL_DB.seedIfNeeded().catch(() => {})

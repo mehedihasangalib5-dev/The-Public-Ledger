@@ -43,21 +43,7 @@
           <span class="sidebar-brand">দ্য পাবলিক লেজার<small>মেনু ও বিভাগ</small></span>
           <button class="sidebar-close" id="sidebar-close" aria-label="মেনু বন্ধ করুন">✕</button>
         </div>
-        <div class="sidebar-search">
-          <form id="sidebar-search-form" role="search">
-            <input type="search" id="sidebar-search-input" placeholder="খবর খুঁজুন…" aria-label="খবর খুঁজুন">
-            <button type="submit">খুঁজুন</button>
-          </form>
-        </div>
         <nav class="sidebar-nav"><ul id="sidebar-nav-list"></ul></nav>
-        <div class="sidebar-foot">
-          <div class="sidebar-social">
-            <a href="#" aria-label="Facebook">f</a>
-            <a href="#" aria-label="Twitter">X</a>
-            <a href="#" aria-label="YouTube">▶</a>
-          </div>
-          <a class="sidebar-cta" href="contact.html">যোগাযোগ করুন</a>
-        </div>
       </aside>
     `;
     document.body.appendChild(root);
@@ -68,11 +54,6 @@
     overlay.addEventListener('click', closeSidebar);
     closeBtn.addEventListener('click', closeSidebar);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
-    root.querySelector('#sidebar-search-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const q = root.querySelector('#sidebar-search-input').value.trim();
-      if (q) location.href = `category.html?q=${encodeURIComponent(q)}`;
-    });
     return root;
   }
 
@@ -124,11 +105,18 @@
   function renderHeader() {
     const host = document.getElementById('site-header');
     if (!host) return;
-    const dateStr = fmtDate('2026-09-18');
+    const now = new Date();
+    const dateStr = fmtDate(now.toISOString().slice(0, 10));
     host.innerHTML = `
       <div class="dateline">
         <div class="wrap">
-          <span>${dateStr} · ${I.t('ঢাকা সংস্করণ')}</span>
+          <span class="dateline-info">
+            <span class="dateline-date">${dateStr}</span>
+            <span class="dateline-sep">·</span>
+            <span class="dateline-edition">${I.t('ঢাকা সংস্করণ')}</span>
+            <span class="dateline-sep">·</span>
+            <span id="dateline-clock" class="dateline-clock"></span>
+          </span>
           <div class="lang-switch" role="group" aria-label="Language">
             <button type="button" data-lang="bn" lang="bn" class="${I.lang === 'bn' ? 'active' : ''}" aria-pressed="${I.lang === 'bn'}">বাংলা</button>
             <button type="button" data-lang="en" lang="en" class="${I.lang === 'en' ? 'active' : ''}" aria-pressed="${I.lang === 'en'}">English</button>
@@ -168,7 +156,30 @@
       b.addEventListener('click', () => I.setLang(b.dataset.lang));
     });
 
+    startClock(host);
     I.apply(host);
+  }
+
+  // Live clock shown in the dateline, next to the date/day. Updates every
+  // second; re-applies on language switch since AM/PM label is localized.
+  let clockTimer = null;
+  function fmtTime(d) {
+    let h = d.getHours();
+    const period = h >= 12 ? (I.lang === 'en' ? 'PM' : 'অপরাহ্ণ') : (I.lang === 'en' ? 'AM' : 'পূর্বাহ্ণ');
+    h = h % 12 || 12;
+    const shortMode = window.matchMedia('(max-width:480px)').matches; // drop seconds on small screens
+    const hh = I.lang === 'en' ? h : Number(h).toLocaleString('bn-BD');
+    const mm = I.lang === 'en' ? String(d.getMinutes()).padStart(2, '0') : Number(d.getMinutes()).toLocaleString('bn-BD', { minimumIntegerDigits: 2 });
+    const ss = I.lang === 'en' ? String(d.getSeconds()).padStart(2, '0') : Number(d.getSeconds()).toLocaleString('bn-BD', { minimumIntegerDigits: 2 });
+    return shortMode ? `${hh}:${mm} ${period}` : `${hh}:${mm}:${ss} ${period}`;
+  }
+  function startClock(host) {
+    if (clockTimer) clearInterval(clockTimer);
+    const el = host.querySelector('#dateline-clock');
+    if (!el) return;
+    const tick = () => { el.textContent = fmtTime(new Date()); };
+    tick();
+    clockTimer = setInterval(tick, 1000);
   }
 
   // Fetches the live category list from Firestore (same collection

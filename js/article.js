@@ -34,6 +34,10 @@
     const noEnglish = I.isEn && !I.hasEnglishBody(article);
 
     root.innerHTML = `
+      <figure class="article-figure">
+        <img src="${article.image}" alt="${I.title(article)}">
+        <figcaption>${I.t('প্রতীকী ছবি — দ্য পাবলিক লেজার')}</figcaption>
+      </figure>
       <header class="article-head">
         <a class="cat-tag" href="category.html?cat=${article.category}">${cat ? I.catName(cat) : ''}</a>
         <h1>${I.title(article)}</h1>
@@ -46,10 +50,6 @@
           </span>
         </div>
       </header>
-      <figure class="article-figure">
-        <img src="${article.image}" alt="${I.title(article)}">
-        <figcaption>${I.t('প্রতীকী ছবি — দ্য পাবলিক লেজার')}</figcaption>
-      </figure>
       <div class="article-body">
         ${noEnglish ? '<p style="font-size:13.5px;font-style:italic;color:var(--ink-faded);">This report is not available in English yet — showing the original Bangla.</p>' : ''}
         ${I.body(article).map(p => `<p>${p}</p>`).join('')}
