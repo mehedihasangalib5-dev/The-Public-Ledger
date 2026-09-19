@@ -65,8 +65,16 @@
           <textarea id="art-excerpt" style="min-height:70px;" required></textarea>
         </div>
         <div class="field">
+          <label for="art-excerpt-en">সংক্ষিপ্ত বিবরণ (ইংরেজি) — ঐচ্ছিক</label>
+          <textarea id="art-excerpt-en" style="min-height:70px;"></textarea>
+        </div>
+        <div class="field">
           <label for="art-body">বিস্তারিত (প্রতি লাইনে একটি অনুচ্ছেদ)</label>
           <textarea id="art-body" style="min-height:140px;" required></textarea>
+        </div>
+        <div class="field">
+          <label for="art-body-en">বিস্তারিত (ইংরেজি) — ঐচ্ছিক, প্রতি লাইনে একটি অনুচ্ছেদ</label>
+          <textarea id="art-body-en" style="min-height:140px;"></textarea>
         </div>
         <div class="two-col">
           <div class="field">
@@ -105,10 +113,11 @@
           <label><input type="checkbox" id="art-breaking"> ব্রেকিং নিউজ (টিকারে দেখান)</label>
           <label><input type="checkbox" id="art-trending"> ট্রেন্ডিং (সাইডবারে দেখান)</label>
         </div>
+        <div id="art-error" role="alert" style="display:none;margin-top:12px;padding:10px 12px;border-radius:8px;background:#FDECEC;color:#B3261E;font-size:13.5px;line-height:1.5;"></div>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" id="modal-cancel">বাতিল</button>
-        <button type="submit" class="btn red">সংরক্ষণ করুন</button>
+        <button type="submit" class="btn red" id="art-save-btn">সংরক্ষণ করুন</button>
       </div>
     </form>
   </div>

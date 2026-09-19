@@ -43,11 +43,17 @@
 <script src="js/admin-auth.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  window.TPL_DB.seedIfNeeded();
+  window.TPL_DB.seedIfNeeded().catch(() => {});
 
   const form = document.getElementById('login-form');
   const err = document.getElementById('login-error');
   const btn = document.getElementById('login-btn');
+
+  // Sent back here by the panel when a signed-in account has no staff role.
+  if (new URLSearchParams(location.search).get('denied')) {
+    err.textContent = 'এই অ্যাকাউন্টের অ্যাডমিন প্যানেলে ঢোকার অনুমতি নেই।';
+    err.classList.add('show');
+  }
 
   // If already signed in, skip straight to the dashboard.
   window.TPL_FIREBASE.auth.onAuthStateChanged((user) => {
@@ -60,7 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.disabled = true;
     window.TPL_AUTH.login(form.email.value.trim(), form.password.value)
       .then(() => { location.href = 'dashboard.html'; })
-      .catch(() => {
+      .catch((e) => {
+        err.textContent = e && e.code === 'app/not-staff'
+          ? 'এই অ্যাকাউন্টের অ্যাডমিন প্যানেলে ঢোকার অনুমতি নেই।'
+          : 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।';
         err.classList.add('show');
         btn.disabled = false;
       });
