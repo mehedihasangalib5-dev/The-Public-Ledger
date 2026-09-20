@@ -1,1 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
+    function signedIn() { return request.auth != null; }
+    function staffPath() { return /databases/$(database)/documents/staff/$(request.auth.uid); }
+    function isStaff()   { return signedIn() && exists(staffPath()); }
+    function role()      { return get(staffPath()).data.role; }
+    function isAdmin()   { return isStaff() && role() == 'admin'; }
+    function isReporter(){ return isStaff() && role() == 'reporter'; }
+
+    // staff/{uid}: { role: "admin" | "reporter", email, displayName, invitedBy, invitedAt }
+    // A user may read ONLY their own document. Nobody writes this from the
+    // client — the Cloud Functions in /functions (inviteStaff, setStaffRole,
+    // removeStaff) use the Admin SDK, which bypasses these rules entirely.
+    match /staff/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /categories/{slug} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // article status workflow: draft -> review -> published (admin only),
+    // or draft/review -> scheduled (admin only, with `publishAt` set).
+    // A `scheduled` article whose publishAt has passed reads like a
+    // published one (in case a direct link is opened before the periodic
+    // promote step flips its status) but does NOT appear in status=="published"
+    // list queries until that flip happens.
+    function isDue(data) { return data.publishAt is timestamp && data.publishAt <= request.time; }
+    function effectivelyPublished(data) { return data.status == 'published' || (data.status == 'scheduled' && isDue(data)); }
+
+    match /articles/{id} {
+      // Visitors: published (or due-scheduled) articles only. Staff: everything.
+      allow read: if isStaff() || effectivelyPublished(resource.data);
+
+      // Admins create in any status; reporters may only create their own
+      // draft/review articles (never published or scheduled).
+      allow create: if isStaff()
+                    && request.resource.data.authorUid == request.auth.uid
+                    && (isAdmin() || request.resource.data.status in ['draft', 'review']);
+
+      allow update: if
+        // admins: everything (edit, workflow changes, scheduling, image migration)
+        isAdmin()
+        // reporters: only their OWN drafts/in-review pieces, moving only between
+        // draft <-> review — never straight to published/scheduled, and never
+        // re-assigning the author.
+        || (isReporter()
+            && resource.data.get('authorUid', null) == request.auth.uid
+            && resource.data.status in ['draft', 'review']
+            && request.resource.data.status in ['draft', 'review']
+            && request.resource.data.authorUid == request.auth.uid)
+        // anyone: the public view counter (+1 on a published article, nothing else)
+        || (resource.data.status == 'published'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+            && request.resource.data.views == resource.data.get('views', 0) + 1);
+
+      allow delete: if isAdmin();
+    }
+  }
+}
