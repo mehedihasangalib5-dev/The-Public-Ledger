@@ -44,6 +44,10 @@
           <button class="sidebar-close" id="sidebar-close" aria-label="মেনু বন্ধ করুন">✕</button>
         </div>
         <nav class="sidebar-nav"><ul id="sidebar-nav-list"></ul></nav>
+        <div class="sidebar-lang" role="group" aria-label="Language">
+          <button type="button" data-lang="bn" lang="bn" class="${I.lang === 'bn' ? 'active' : ''}" aria-pressed="${I.lang === 'bn'}">বাংলা</button>
+          <button type="button" data-lang="en" lang="en" class="${I.lang === 'en' ? 'active' : ''}" aria-pressed="${I.lang === 'en'}">English</button>
+        </div>
       </aside>
     `;
     document.body.appendChild(root);
@@ -53,6 +57,9 @@
     const closeBtn = root.querySelector('#sidebar-close');
     overlay.addEventListener('click', closeSidebar);
     closeBtn.addEventListener('click', closeSidebar);
+    root.querySelectorAll('.sidebar-lang button').forEach((b) => {
+      b.addEventListener('click', () => I.setLang(b.dataset.lang));
+    });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
     return root;
   }
@@ -125,16 +132,19 @@
       </div>
       <div class="masthead">
         <div class="wrap">
-          <button class="nav-toggle" id="nav-toggle" aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="site-sidebar">
-            <span class="hbars"><span></span><span></span><span></span></span>
-            <span class="htext">মেনু</span>
-          </button>
-          <a class="brand" href="index.html">
-            <img class="brand-logo" src="assets/img/logo.png" alt="দ্য পাবলিক লেজার লোগো">
-            <span class="mark">প্রতিষ্ঠিত ২০২৬ · খণ্ড ১, সংখ্যা ১</span>
-            <h1>দ্য পাবলিক লেজার</h1>
-            <span class="tagline">The Public Ledger — every entry, accounted for.</span>
-          </a>
+          <div class="masthead-row">
+            <button class="nav-toggle" id="nav-toggle" aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="site-sidebar">
+              <span class="hbars"><span></span><span></span><span></span></span>
+              <span class="htext">মেনু</span>
+            </button>
+            <a class="brand" href="index.html">
+              <img class="brand-logo" src="assets/img/logo.png" alt="দ্য পাবলিক লেজার লোগো">
+              <span class="mark">প্রতিষ্ঠিত ২০২৬ · খণ্ড ১, সংখ্যা ১</span>
+              <h1>দ্য পাবলিক লেজার</h1>
+              <span class="tagline">The Public Ledger — every entry, accounted for.</span>
+            </a>
+            <button class="search-toggle" id="search-toggle" aria-label="সার্চ খুলুন" aria-expanded="false" aria-controls="site-search-form">🔍</button>
+          </div>
           <form class="masthead-search" id="site-search-form" role="search">
             <input type="search" id="site-search-input" placeholder="খবর খুঁজুন…" aria-label="খবর খুঁজুন">
             <button type="submit">খুঁজুন</button>
@@ -147,7 +157,14 @@
     const toggle = host.querySelector('#nav-toggle');
     toggle.addEventListener('click', () => openSidebar());
 
-    host.querySelector('#site-search-form').addEventListener('submit', (e) => {
+    const searchForm = host.querySelector('#site-search-form');
+    const searchToggle = host.querySelector('#search-toggle');
+    searchToggle.addEventListener('click', () => {
+      const open = searchForm.classList.toggle('open');
+      searchToggle.setAttribute('aria-expanded', String(open));
+      if (open) host.querySelector('#site-search-input').focus();
+    });
+    searchForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const q = host.querySelector('#site-search-input').value.trim();
       if (q) location.href = `category.html?q=${encodeURIComponent(q)}`;
@@ -251,9 +268,10 @@
             </div>
             <p>নির্ভরযোগ্য প্রতিবেদন, স্পষ্ট বিশ্লেষণ। প্রতিটি খবর যাচাই করে, নিরপেক্ষভাবে তুলে ধরাই আমাদের অঙ্গীকার।</p>
             <div class="footer-social">
-              <a href="#" aria-label="Facebook">f</a>
-              <a href="#" aria-label="Twitter">X</a>
+              <a href="https://www.facebook.com/share/1ESyEaFQWb/" target="_blank" rel="noopener" aria-label="Facebook">f</a>
+              <a href="https://x.com/PublicLedger26" target="_blank" rel="noopener" aria-label="X (Twitter)">X</a>
               <a href="#" aria-label="YouTube">▶</a>
+              <a href="https://freeder.com.bd/pages/the-public-ledger" target="_blank" rel="noopener" aria-label="Freeder">Fr</a>
             </div>
           </div>
           <div>

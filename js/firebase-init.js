@@ -22,6 +22,7 @@
 
   global.TPL_FIREBASE = {
     db: firebase.firestore(),
-    auth: firebase.auth ? firebase.auth() : null
+    auth: firebase.auth ? firebase.auth() : null,
+    config: firebaseConfig, // exposed so admin-staff.js can spin up a secondary app instance
   };
 })(window);

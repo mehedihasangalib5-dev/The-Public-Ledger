@@ -12,6 +12,7 @@
       <article class="story ${opts.list ? 'list' : ''} reveal">
         <a class="figure" href="article.html?slug=${a.slug}">
           <img src="${a.image}" alt="${I.title(a)}" loading="lazy">
+          ${a.video_url ? '<span class="video-badge">▶</span>' : ''}
         </a>
         <div class="body">
           <a class="cat-tag" href="category.html?cat=${a.category}">${cat ? I.catName(cat) : ''}</a>
@@ -32,7 +33,10 @@
     if (leadHost) {
       const cat = catBySlug(lead.category);
       leadHost.innerHTML = `
-        <a class="figure" href="article.html?slug=${lead.slug}"><img src="${lead.image}" alt="${I.title(lead)}"></a>
+        <a class="figure" href="article.html?slug=${lead.slug}">
+          <img src="${lead.image}" alt="${I.title(lead)}">
+          ${lead.video_url ? '<span class="video-badge">▶</span>' : ''}
+        </a>
         <a class="cat-tag" href="category.html?cat=${lead.category}">${cat ? I.catName(cat) : ''}</a>
         <h2><a href="article.html?slug=${lead.slug}">${I.title(lead)}</a></h2>
         <p class="dek">${I.excerpt(lead)}</p>

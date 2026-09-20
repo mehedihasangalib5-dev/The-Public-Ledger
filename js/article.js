@@ -6,11 +6,35 @@
     return cats.find(c => c.slug === slug);
   }
 
+  // Turns a pasted YouTube/Facebook video URL into an embeddable iframe src.
+  // No file upload here — see the note to the user: without Firebase Storage,
+  // raw video files can't be hosted from this site, so video support works
+  // via linking an already-hosted video (YouTube, Facebook) instead.
+  function videoEmbedSrc(url) {
+    if (!url) return null;
+    let u;
+    try { u = new URL(url); } catch (e) { return null; }
+    const host = u.hostname.replace(/^www\./, '');
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      if (u.pathname === '/watch' && u.searchParams.get('v')) return `https://www.youtube.com/embed/${u.searchParams.get('v')}`;
+      if (u.pathname.startsWith('/embed/')) return url;
+      if (u.pathname.startsWith('/shorts/')) return `https://www.youtube.com/embed/${u.pathname.split('/')[2]}`;
+    }
+    if (host === 'youtu.be') return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if (host === 'facebook.com' || host === 'fb.watch') {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0`;
+    }
+    return null;
+  }
+
   function relatedCard(a) {
     const cat = catBySlug(a.category);
     return `
       <article class="story reveal">
-        <a class="figure" href="article.html?slug=${a.slug}"><img src="${a.image}" alt="${I.title(a)}" loading="lazy"></a>
+        <a class="figure" href="article.html?slug=${a.slug}">
+          <img src="${a.image}" alt="${I.title(a)}" loading="lazy">
+          ${a.video_url ? '<span class="video-badge">▶</span>' : ''}
+        </a>
         <div class="body">
           <a class="cat-tag" href="category.html?cat=${a.category}">${cat ? I.catName(cat) : ''}</a>
           <h3><a href="article.html?slug=${a.slug}">${I.title(a)}</a></h3>
@@ -28,16 +52,28 @@
       return;
     }
 
-    document.title = `${I.title(article)} — ${I.t('দ্য পাবলিক লেজার')}`;
+    document.title = article.meta_title || `${I.title(article)} — ${I.t('দ্য পাবলিক লেজার')}`;
+    const metaDesc = document.getElementById('meta-description');
+    if (metaDesc) metaDesc.setAttribute('content', article.meta_desc || I.excerpt(article));
     const cat = catBySlug(article.category);
     const shareUrl = encodeURIComponent(location.href);
     const noEnglish = I.isEn && !I.hasEnglishBody(article);
+    const bodyHtml = I.isEn && article.body_html_en
+      ? article.body_html_en
+      : (article.body_html || I.body(article).map(p => `<p>${p}</p>`).join(''));
+    const embedSrc = videoEmbedSrc(article.video_url);
 
     root.innerHTML = `
+      ${embedSrc ? `
+      <div class="article-video">
+        <iframe src="${embedSrc}" title="${I.title(article)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      ` : `
       <figure class="article-figure">
         <img src="${article.image}" alt="${I.title(article)}">
         <figcaption>${I.t('প্রতীকী ছবি — দ্য পাবলিক লেজার')}</figcaption>
       </figure>
+      `}
       <header class="article-head">
         <a class="cat-tag" href="category.html?cat=${article.category}">${cat ? I.catName(cat) : ''}</a>
         <h1>${I.title(article)}</h1>
@@ -52,7 +88,7 @@
       </header>
       <div class="article-body">
         ${noEnglish ? '<p style="font-size:13.5px;font-style:italic;color:var(--ink-faded);">This report is not available in English yet — showing the original Bangla.</p>' : ''}
-        ${I.body(article).map(p => `<p>${p}</p>`).join('')}
+        ${bodyHtml}
       </div>
       <div class="tags">
         ${(article.tags || []).map(t => `<a href="category.html?q=${encodeURIComponent(t)}">#${t}</a>`).join('')}

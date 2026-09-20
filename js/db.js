@@ -114,10 +114,18 @@
 
   // Public pages must ask for published articles only: Firestore rules let
   // visitors read a document only when status == 'published', and a query
-  // has to be provably inside that rule.
+  // has to be provably inside that rule. `publish_at` (optional) lets an
+  // article stay flagged 'published' in Firestore but stay off every public
+  // listing/page until that moment — a no-backend approximation of
+  // scheduled publishing (the doc itself is technically fetchable by a
+  // direct query before then, but nothing in the UI shows or links to it).
+  function isDue(a) {
+    return !a.publish_at || new Date(a.publish_at) <= new Date();
+  }
+
   function getPublished() {
     return db().collection(ARTS_COL).where('status', '==', 'published').get()
-      .then((snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      .then((snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter(isDue));
   }
 
   function getCategoryBySlug(slug) {
@@ -126,12 +134,53 @@
 
   function getArticleBySlug(slug) {
     return db().collection(ARTS_COL).where('slug', '==', slug).where('status', '==', 'published').limit(1).get()
-      .then((snap) => (snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() }));
+      .then((snap) => (snap.empty || !isDue(snap.docs[0].data()) ? null : { id: snap.docs[0].id, ...snap.docs[0].data() }));
+  }
+
+  // ---- media library ----
+  // Small collection of previously-uploaded (already-compressed) images so
+  // an editor can reuse a cover image instead of re-uploading it.
+  const MEDIA_COL = 'media';
+
+  function getMedia() {
+    return db().collection(MEDIA_COL).orderBy('uploadedAt', 'desc').get()
+      .then((snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+      .catch(() => db().collection(MEDIA_COL).get().then((snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })))); // no index yet — fall back to unordered
+  }
+
+  function saveMedia(item) {
+    const id = nowSlugId('m');
+    const data = { id, name: item.name || '', dataUrl: item.dataUrl, uploadedAt: new Date().toISOString() };
+    return db().collection(MEDIA_COL).doc(id).set(data).then(() => data);
+  }
+
+  function deleteMedia(id) {
+    return db().collection(MEDIA_COL).doc(id).delete();
+  }
+
+  // ---- staff (roles) ----
+  // Doc id = Firebase Auth UID. Creating the Auth account itself happens
+  // client-side via a secondary app instance (see admin-staff.js) since
+  // there's no backend; this just manages the Firestore role record.
+  const STAFF_COL = 'staff';
+
+  function getStaff() {
+    return db().collection(STAFF_COL).get().then((snap) => snap.docs.map((d) => ({ uid: d.id, ...d.data() })));
+  }
+
+  function saveStaffMember(uid, data) {
+    return db().collection(STAFF_COL).doc(uid).set(data, { merge: true });
+  }
+
+  function deleteStaffMember(uid) {
+    return db().collection(STAFF_COL).doc(uid).delete();
   }
 
   global.TPL_DB = {
     seedIfNeeded, getCategories, saveCategories, getArticles, saveArticles,
     saveArticle, deleteArticle, incrementViews,
-    getPublished, getCategoryBySlug, getArticleBySlug, nowSlugId
+    getPublished, getCategoryBySlug, getArticleBySlug, nowSlugId,
+    getMedia, saveMedia, deleteMedia,
+    getStaff, saveStaffMember, deleteStaffMember,
   };
 })(window);
