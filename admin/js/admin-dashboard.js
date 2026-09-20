@@ -7,12 +7,14 @@
       }).then(([arts, cats]) => {
         const published = arts.filter(a => a.status === 'published');
         const drafts = arts.filter(a => a.status === 'draft');
+        const scheduled = arts.filter(a => a.publish_at && new Date(a.publish_at) > new Date());
         const totalViews = arts.reduce((s, a) => s + (a.views || 0), 0);
 
         document.getElementById('kpi-grid').innerHTML = `
           <div class="kpi-card"><div class="num">${arts.length}</div><div class="lbl">মোট প্রতিবেদন</div></div>
           <div class="kpi-card"><div class="num">${published.length}</div><div class="lbl">প্রকাশিত</div></div>
           <div class="kpi-card"><div class="num">${drafts.length}</div><div class="lbl">খসড়া</div></div>
+          <div class="kpi-card"><div class="num">${scheduled.length}</div><div class="lbl">শিডিউলড</div></div>
           <div class="kpi-card"><div class="num">${cats.length}</div><div class="lbl">বিভাগ</div></div>
           <div class="kpi-card"><div class="num">${totalViews.toLocaleString('bn-BD')}</div><div class="lbl">মোট ভিউ</div></div>
         `;
