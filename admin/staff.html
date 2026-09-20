@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>স্টাফ — অ্যাডমিন — দ্য পাবলিক লেজার</title>
+<link rel="stylesheet" href="css/admin.css">
+<link rel="icon" href="assets/img/logo.png">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <div class="admin-main">
+    <div class="mobile-topbar" id="mobile-topbar"></div>
+    <div class="admin-topbar">
+      <div>
+        <h1>স্টাফ ব্যবস্থাপনা</h1>
+        <p>অ্যাডমিন প্যানেলে কারা ঢুকতে পারবেন, তাদের অ্যাকাউন্ট ও ভূমিকা নিয়ন্ত্রণ করুন</p>
+      </div>
+      <button class="btn red" id="new-staff-btn">+ নতুন স্টাফ</button>
+    </div>
+    <div class="admin-content">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>স্টাফ তালিকা</h3>
+        </div>
+        <div class="staff-grid" id="staff-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="staff-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <h3>নতুন স্টাফ যোগ করুন</h3>
+      <button class="modal-close" id="staff-modal-close">×</button>
+    </div>
+    <form id="staff-form">
+      <div class="modal-body">
+        <div class="field">
+          <label for="staff-name">নাম</label>
+          <input type="text" id="staff-name" required>
+        </div>
+        <div class="field">
+          <label for="staff-email">ইমেইল</label>
+          <input type="email" id="staff-email" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="staff-password">সাময়িক পাসওয়ার্ড</label>
+          <input type="text" id="staff-password" required minlength="6" placeholder="কমপক্ষে ৬ অক্ষর">
+          <p class="field-hint">নতুন স্টাফকে এই পাসওয়ার্ড দিয়ে লগইন করতে বলুন — চাইলে তারা পরে Firebase-এর "পাসওয়ার্ড ভুলে গেছি" দিয়ে বদলাতে পারবেন।</p>
+        </div>
+        <div class="field">
+          <label for="staff-role">ভূমিকা</label>
+          <select id="staff-role">
+            <option value="reporter">প্রতিবেদক (রিপোর্টার)</option>
+            <option value="admin">প্রশাসক (অ্যাডমিন)</option>
+          </select>
+        </div>
+        <div id="staff-error" role="alert" style="display:none;margin-top:8px;padding:10px 12px;border-radius:8px;background:#FDECEC;color:#B3261E;font-size:13.5px;line-height:1.5;"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn ghost" id="staff-modal-cancel">বাতিল</button>
+        <button type="submit" class="btn red" id="staff-save-btn">তৈরি করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-init.js"></script>
+<script src="../js/db.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="js/admin-staff.js"></script>
+</body>
+</html>

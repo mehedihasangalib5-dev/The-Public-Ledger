@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>প্রতিবেদন — অ্যাডমিন — দ্য পাবলিক লেজার</title>
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
 <link rel="icon" href="assets/img/logo.png">
 </head>
 <body>
@@ -30,14 +31,21 @@
             <option value="draft">খসড়া</option>
           </select>
         </div>
+        <div class="bulk-bar" id="bulk-bar" style="display:none;">
+          <span id="bulk-count"></span>
+          <button type="button" class="btn small outline" id="bulk-publish">প্রকাশ করুন</button>
+          <button type="button" class="btn small outline" id="bulk-draft">খসড়ায় নিন</button>
+          <button type="button" class="btn small ghost" id="bulk-delete" style="color:var(--ledger-red);">মুছুন</button>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>শিরোনাম</th><th>বিভাগ</th><th>লেখক</th><th>তারিখ</th><th>অবস্থা</th><th>ট্যাগ</th><th>কার্যক্রম</th></tr>
+              <tr><th style="width:34px;"><input type="checkbox" id="select-all"></th><th>শিরোনাম</th><th>বিভাগ</th><th>লেখক</th><th>তারিখ</th><th>অবস্থা</th><th>ট্যাগ</th><th>কার্যক্রম</th></tr>
             </thead>
             <tbody id="articles-body"></tbody>
           </table>
         </div>
+        <div class="pager" id="pager"></div>
       </div>
     </div>
   </div>
@@ -69,12 +77,12 @@
           <textarea id="art-excerpt-en" style="min-height:70px;"></textarea>
         </div>
         <div class="field">
-          <label for="art-body">বিস্তারিত (প্রতি লাইনে একটি অনুচ্ছেদ)</label>
-          <textarea id="art-body" style="min-height:140px;" required></textarea>
+          <label for="art-body">বিস্তারিত (বাংলা)</label>
+          <div id="art-body-editor" class="rte"></div>
         </div>
         <div class="field">
-          <label for="art-body-en">বিস্তারিত (ইংরেজি) — ঐচ্ছিক, প্রতি লাইনে একটি অনুচ্ছেদ</label>
-          <textarea id="art-body-en" style="min-height:140px;"></textarea>
+          <label for="art-body-en">বিস্তারিত (ইংরেজি) — ঐচ্ছিক</label>
+          <div id="art-body-en-editor" class="rte"></div>
         </div>
         <div class="two-col">
           <div class="field">
@@ -100,19 +108,43 @@
           </div>
         </div>
         <div class="field">
+          <label for="art-publish-at">শিডিউল প্রকাশ (ঐচ্ছিক)</label>
+          <input type="datetime-local" id="art-publish-at">
+          <p class="field-hint">খালি রাখলে সাথে সাথে দেখা যাবে। ভবিষ্যতের সময় দিলে "প্রকাশিত" করা থাকলেও ওই সময়ের আগে সাইটে দেখাবে না।</p>
+        </div>
+        <div class="field">
           <label for="art-tags">ট্যাগ (কমা দিয়ে আলাদা করুন)</label>
           <input type="text" id="art-tags" placeholder="যেমন: বাজেট, সংসদ">
         </div>
         <div class="field">
-          <label for="art-image-file">কভার ছবি আপলোড করুন</label>
-          <input type="file" id="art-image-file" accept="image/*">
+          <label>কভার ছবি</label>
+          <div class="cover-picker">
+            <input type="file" id="art-image-file" accept="image/*">
+            <button type="button" class="btn small outline" id="open-media-library">মিডিয়া লাইব্রেরি থেকে বাছাই করুন</button>
+          </div>
           <div id="art-image-preview" style="margin-top:8px;"></div>
+        </div>
+        <div class="field">
+          <label for="art-video-url">ভিডিও লিংক (ঐচ্ছিক)</label>
+          <input type="url" id="art-video-url" placeholder="YouTube বা Facebook ভিডিওর লিংক পেস্ট করুন">
+          <p class="field-hint">সরাসরি ভিডিও ফাইল আপলোডের সুযোগ নেই (এটা একটা ফাইল-স্টোরেজ ছাড়া সাইট) — YouTube বা Facebook-এ ভিডিওটা আপলোড করে এখানে তার লিংক বসিয়ে দিন, প্রতিবেদনের পাতায় প্লেয়ার হিসেবে বসে যাবে।</p>
         </div>
         <div class="field checks">
           <label><input type="checkbox" id="art-featured"> ফিচার্ড (প্রচ্ছদে বড় করে দেখান)</label>
           <label><input type="checkbox" id="art-breaking"> ব্রেকিং নিউজ (টিকারে দেখান)</label>
           <label><input type="checkbox" id="art-trending"> ট্রেন্ডিং (সাইডবারে দেখান)</label>
         </div>
+        <details class="seo-details">
+          <summary>SEO / মেটা তথ্য (ঐচ্ছিক)</summary>
+          <div class="field" style="margin-top:14px;">
+            <label for="art-meta-title">মেটা টাইটেল</label>
+            <input type="text" id="art-meta-title" placeholder="খালি রাখলে প্রতিবেদনের শিরোনাম ব্যবহার হবে">
+          </div>
+          <div class="field">
+            <label for="art-meta-desc">মেটা বিবরণ</label>
+            <textarea id="art-meta-desc" style="min-height:60px;" placeholder="খালি রাখলে সংক্ষিপ্ত বিবরণ ব্যবহার হবে" maxlength="160"></textarea>
+          </div>
+        </details>
         <div id="art-error" role="alert" style="display:none;margin-top:12px;padding:10px 12px;border-radius:8px;background:#FDECEC;color:#B3261E;font-size:13.5px;line-height:1.5;"></div>
       </div>
       <div class="modal-foot">
@@ -123,6 +155,20 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="media-modal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3>মিডিয়া লাইব্রেরি</h3>
+      <button class="modal-close" id="media-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="field-hint" style="margin-top:0;">আগে আপলোড করা ছবি বাছাই করুন, অথবা নতুন ছবি আপলোড করলে সেটাও এখানে যোগ হয়ে যাবে।</p>
+      <div id="media-grid" class="media-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
