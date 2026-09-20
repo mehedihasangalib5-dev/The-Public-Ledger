@@ -1,0 +1,11 @@
+{
+  "name": "the-public-ledger-functions",
+  "description": "Cloud Functions for the-public-ledger-26 admin panel: staff invite/role management (custom claims) and scheduled publishing.",
+  "engines": { "node": "18" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^4.9.0"
+  },
+  "private": true
+}
